@@ -6,13 +6,12 @@ export
 
 deploy-strategist:
 	@echo "Deploying strategist workflows..."
-	@mkdir -p $(DEPLOY_TARGET)
-	@rsync -a --exclude='*.sop.md' strategist/agy-workflows/ $(DEPLOY_TARGET)/
-	@find strategist/agy-workflows -name '*.sop.md' -type f | while read file; do \
-		relative=$$(echo $$file | sed 's|strategist/agy-workflows/||'); \
-		target=$$(echo $$relative | sed 's|\.sop\.md$$|.md|'); \
-		mkdir -p $(DEPLOY_TARGET)/$$(dirname $$target); \
-		cp $$file $(DEPLOY_TARGET)/$$target; \
+	@mkdir -p $(DEPLOY_TARGET)/workflows
+	@cp -r strategist/agy-workflows/kb-strategist $(DEPLOY_TARGET)/
+	@find strategist/agy-workflows -maxdepth 1 -name '*.md' ! -name '*.sop.md' -type f -exec cp {} $(DEPLOY_TARGET)/workflows/ \;
+	@find strategist/agy-workflows -maxdepth 1 -name '*.sop.md' -type f | while read file; do \
+		basename=$$(basename $$file .sop.md); \
+		cp $$file $(DEPLOY_TARGET)/workflows/$$basename.md; \
 	done
 	@echo "✓ Strategist workflows deployed successfully to $(DEPLOY_TARGET)"
 
